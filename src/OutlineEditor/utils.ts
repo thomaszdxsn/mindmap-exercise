@@ -17,6 +17,15 @@ export enum InvalidText {
   InvalidLine,
 }
 
+export function translateInvalidTextEnum(e: InvalidText) {
+  switch (e) {
+    case InvalidText.InvalidLine:
+      return "文本格式不正确";
+    case InvalidText.InvalidIndent:
+      return "缩进不正确";
+  }
+}
+
 export function parseTextIntoNodes(
   text: string,
   indentSize = 4

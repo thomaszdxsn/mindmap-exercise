@@ -1,25 +1,40 @@
 import classNames from "classnames";
-import { useRef } from "react";
+import { useCallback, useRef } from "react";
 import { useRecoilValue } from "recoil";
 import { translateInvalidTextEnum } from "../OutlineEditor/utils";
 import { nodesSelector } from "../states";
 import { useZoomTransformState, buildSVGTransformAttr } from "./hooks";
+import Canvas from "./Canvas";
+import Stagger from "./Stagger";
 
 interface Props {
   className?: string;
 }
 
-function MindMap({ className }: Props) {
+function MindMap(props: Props) {
   const ref = useRef<SVGSVGElement>(null!);
-  const [zoomTransform] = useZoomTransformState(ref);
+  const [zoomTransform, setZoomTransform] = useZoomTransformState(ref);
   const transform = buildSVGTransformAttr(zoomTransform);
+  const className = classNames(props.className, "relative");
+  const setScale = useCallback(
+    (scale: number) => setZoomTransform((prev) => ({ ...prev, scale })),
+    [setZoomTransform]
+  );
 
   return (
-    <svg className={className} ref={ref}>
-      <g transform={transform}>
-        <rect width={20} height={20} x={10} y={10} />
-      </g>
-    </svg>
+    <div className={className}>
+      <svg className="w-full h-full p-2" ref={ref}>
+        <g transform={transform}>
+          <Canvas />
+        </g>
+      </svg>
+
+      <Stagger
+        scale={zoomTransform.scale}
+        setScale={setScale}
+        className="absolute right-[10px] bottom-[10px]"
+      />
+    </div>
   );
 }
 
