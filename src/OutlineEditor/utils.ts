@@ -1,4 +1,4 @@
-import { Node } from "../interfaces";
+import { Node, Result } from "../interfaces";
 
 export function parseTextLine(
   line: string,
@@ -64,16 +64,22 @@ export function parseTextIntoNodes(
 
 export function tryParseTextIntoNodes(
   ...args: Parameters<typeof parseTextIntoNodes>
-) {
+): Result<
+  ReturnType<typeof parseTextIntoNodes>,
+  { lineNum: number; error: InvalidText }
+> {
   try {
     return {
       ok: true,
       data: parseTextIntoNodes(...args),
     };
   } catch (error) {
+    if (error instanceof Error) {
+      throw error;
+    }
     return {
       ok: false,
-      error,
+      error: error as { lineNum: number; error: InvalidText },
     };
   }
 }
