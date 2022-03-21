@@ -1,20 +1,22 @@
-import React from "react";
+import { useRecoilState } from "recoil";
+import { nodesRawContentAtom } from "../states";
 
 interface Props {
-  value?: string;
-  defaultValue?: string;
-  onChange: React.ChangeEventHandler<HTMLTextAreaElement>;
   className?: string;
 }
 
-function OutlierEditor({ value, onChange, defaultValue, className }: Props) {
+function OutlierEditor({ className }: Props) {
+  const [content, setContent] = useRecoilState(nodesRawContentAtom);
   return (
-    <textarea
-      value={value}
-      onChange={onChange}
-      defaultValue={defaultValue}
-      className={className}
-    />
+    <div className="flex flex-col gap-2">
+      <textarea
+        onChange={(e) => {
+          setContent(e.target.value);
+        }}
+        value={content}
+        className={className}
+      />
+    </div>
   );
 }
 

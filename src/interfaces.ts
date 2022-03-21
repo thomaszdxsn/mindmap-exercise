@@ -4,3 +4,9 @@ export interface Node {
   childIds: string[];
   content: string;
 }
+
+export interface Result<R, E> {
+  ok: boolean;
+  data?: R;
+  error?: E;
+}

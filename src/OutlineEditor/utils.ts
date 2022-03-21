@@ -61,3 +61,19 @@ export function parseTextIntoNodes(
   });
   return new Map(Array.from(map.values()).map((x) => [x.node.id, x.node]));
 }
+
+export function tryParseTextIntoNodes(
+  ...args: Parameters<typeof parseTextIntoNodes>
+) {
+  try {
+    return {
+      ok: true,
+      data: parseTextIntoNodes(...args),
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      error,
+    };
+  }
+}
