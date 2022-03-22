@@ -4,10 +4,7 @@ import type { D3ZoomEvent } from "d3-zoom";
 import type { ZoomTransform } from "./interfaces";
 import { MIND_MAP_MAX_SCALE, MIND_MAP_MIN_SCALE } from "../constants";
 import { useRecoilValue } from "recoil";
-import {
-  nodeChildrenMainAxisSpaceSelectorFamily,
-  nodeMainAxisSpaceSelectorFamily,
-} from "../states/selectors";
+import { nodeChildrenMainAxisSpaceSelectorFamily } from "../states/selectors";
 import { accumalator } from "./utils";
 
 export function useZoomTransformState(
@@ -78,7 +75,15 @@ export function useZoomTransformState(
     [setZoomTransform]
   );
 
-  return [zoomTransform, setTransform] as const;
+  const resetTranform = React.useCallback(() => {
+    const initial = calcOriginCenterCoord();
+    setZoomTransform({ ...initial, scale: 1 });
+    const selection = select(ref.current);
+    zoomed.scaleTo(selection, 1);
+    zoomed.translateTo(selection, 0, 0, [0, 0]);
+  }, [setZoomTransform]);
+
+  return { zoomTransform, setTransform, resetTranform };
 }
 
 export function buildSVGTransformAttr(zoomTransform: ZoomTransform) {

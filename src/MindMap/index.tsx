@@ -17,14 +17,15 @@ function MindMap(props: Props) {
   const ref = useRef<SVGSVGElement>(null!);
   const containerRef = useRef<HTMLDivElement>(null!);
   const bgColor = useRecoilValue(mindmapBgColorAtom);
-  const [zoomTransform, setZoomTransform] = useZoomTransformState(ref);
+  const { zoomTransform, setTransform, resetTranform } =
+    useZoomTransformState(ref);
   const transform = buildSVGTransformAttr(zoomTransform);
   const className = classNames(props.className, "relative");
   const setScale = useCallback(
     (scale: number) => {
-      setZoomTransform((prev) => ({ ...prev, scale }));
+      setTransform((prev) => ({ ...prev, scale }));
     },
-    [setZoomTransform]
+    [setTransform]
   );
   const onDownload = useCallback(async () => {
     const canvas = await html2canvas(containerRef.current as any);
@@ -49,6 +50,7 @@ function MindMap(props: Props) {
       </svg>
 
       <Stagger
+        onFocus={resetTranform}
         onDownload={onDownload}
         scale={zoomTransform.scale}
         setScale={setScale}

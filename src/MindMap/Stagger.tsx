@@ -6,6 +6,7 @@ interface Props {
   scale: number;
   setScale(scale: number): void;
   onDownload(): void;
+  onFocus(): void;
   className?: string;
 }
 
@@ -48,11 +49,23 @@ function Downloader({ onDownload: onClick }: Pick<Props, "onDownload">) {
   );
 }
 
+function Focus({ onFocus: onClick }: Pick<Props, "onFocus">) {
+  return (
+    <button
+      className="text-lg px-3 bg-white shadow rounded-full hover:opacity-50"
+      onClick={onClick}
+    >
+      👀
+    </button>
+  );
+}
+
 function Stagger(props: Props) {
-  const { scale, setScale, className, onDownload } = props;
+  const { scale, setScale, className, onDownload, onFocus } = props;
   return (
     <div className={className}>
       <Downloader onDownload={onDownload} />
+      <Focus onFocus={onFocus} />
       <Scaler scale={scale} setScale={setScale} />
     </div>
   );
