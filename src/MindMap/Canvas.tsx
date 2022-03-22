@@ -2,8 +2,8 @@ import React from "react";
 import { linkHorizontal } from "d3";
 import { useRecoilState, useRecoilValue } from "recoil";
 import {
-  mindmapBgColorAtom,
   mindmapBranchWidth,
+  mindmapThemeAtom,
   mindMapXGapAtom,
   nodeExpandAtomFamily,
 } from "../states/atoms";
@@ -138,9 +138,9 @@ function RootNode(props: { padding?: number }) {
 }
 
 function Canvas() {
-  const fill = useRecoilValue(mindmapBgColorAtom);
+  const { background } = useRecoilValue(mindmapThemeAtom);
   return (
-    <g transform="translate(0, 0)" fill={fill}>
+    <g transform="translate(0, 0)" fill={background}>
       <RootNode />
     </g>
   );

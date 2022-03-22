@@ -5,3 +5,7 @@
 .btn {
   @apply p-1 shadow rounded-lg border;
 }
+
+text {
+  @apply stroke-transparent fill-current;
+}
