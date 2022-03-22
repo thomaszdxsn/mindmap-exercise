@@ -6,6 +6,7 @@ import { nodesSelector } from "../states";
 import { useZoomTransformState, buildSVGTransformAttr } from "./hooks";
 import Canvas from "./Canvas";
 import Stagger from "./Stagger";
+import { mindmapBgColorAtom } from "../states/atoms";
 
 interface Props {
   className?: string;
@@ -13,17 +14,20 @@ interface Props {
 
 function MindMap(props: Props) {
   const ref = useRef<SVGSVGElement>(null!);
+  const bgColor = useRecoilValue(mindmapBgColorAtom);
   const [zoomTransform, setZoomTransform] = useZoomTransformState(ref);
   const transform = buildSVGTransformAttr(zoomTransform);
   const className = classNames(props.className, "relative");
   const setScale = useCallback(
-    (scale: number) => setZoomTransform((prev) => ({ ...prev, scale })),
+    (scale: number) => {
+      setZoomTransform((prev) => ({ ...prev, scale }));
+    },
     [setZoomTransform]
   );
 
   return (
-    <div className={className}>
-      <svg className="w-full h-full p-2" ref={ref}>
+    <div className={className} style={{ background: bgColor }}>
+      <svg className="w-full h-full p-2 text-white stroke-current" ref={ref}>
         <g transform={transform}>
           <Canvas />
         </g>

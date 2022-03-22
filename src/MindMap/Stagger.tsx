@@ -14,7 +14,7 @@ function Scaler({ scale, setScale }: Pick<Props, "scale" | "setScale">) {
     "text-lg items-center flex justify-center"
   );
   const wrapperClass = classNames(
-    "flex gap-1 items-baseline rounded-full bg-gray-100 px-4 py-2"
+    "flex gap-1 items-baseline rounded-full bg-gray-100 px-4 py-2 shadow"
   );
   const scaleDisplay = `${Math.trunc(scale * 100)}%`;
   const setNewScaleValue = (value: number) =>
@@ -24,7 +24,7 @@ function Scaler({ scale, setScale }: Pick<Props, "scale" | "setScale">) {
   return (
     <div className={wrapperClass}>
       <button type="button" className={btnClass} onClick={onScaleMinus}>
-        <span>-</span>
+        <span>–</span>
       </button>
       <button type="button" className={btnClass} onClick={onScaleAdd}>
         <span>+</span>
