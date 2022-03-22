@@ -1,6 +1,7 @@
 import classNames from "classnames";
 import { useCallback, useRef } from "react";
 import { useRecoilValue } from "recoil";
+import html2canvas from "html2canvas";
 import { translateInvalidTextEnum } from "../OutlineEditor/utils";
 import { nodesSelector } from "../states";
 import { useZoomTransformState, buildSVGTransformAttr } from "./hooks";
@@ -14,6 +15,7 @@ interface Props {
 
 function MindMap(props: Props) {
   const ref = useRef<SVGSVGElement>(null!);
+  const containerRef = useRef<HTMLDivElement>(null!);
   const bgColor = useRecoilValue(mindmapBgColorAtom);
   const [zoomTransform, setZoomTransform] = useZoomTransformState(ref);
   const transform = buildSVGTransformAttr(zoomTransform);
@@ -24,9 +26,22 @@ function MindMap(props: Props) {
     },
     [setZoomTransform]
   );
+  const onDownload = useCallback(async () => {
+    const canvas = await html2canvas(containerRef.current as any);
+    const dataUrl = canvas.toDataURL("image/png");
+    const a = document.createElement("a");
+    a.download = "mindmap.png";
+    a.href = dataUrl;
+    a.click();
+    a.remove();
+  }, []);
 
   return (
-    <div className={className} style={{ background: bgColor }}>
+    <div
+      className={className}
+      style={{ background: bgColor }}
+      ref={containerRef}
+    >
       <svg className="w-full h-full p-2 text-white stroke-current" ref={ref}>
         <g transform={transform}>
           <Canvas />
@@ -34,9 +49,10 @@ function MindMap(props: Props) {
       </svg>
 
       <Stagger
+        onDownload={onDownload}
         scale={zoomTransform.scale}
         setScale={setScale}
-        className="absolute right-[10px] bottom-[10px]"
+        className="absolute right-[10px] bottom-[10px] flex gap-2"
       />
     </div>
   );
