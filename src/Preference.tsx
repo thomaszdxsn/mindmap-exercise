@@ -1,7 +1,12 @@
 import classNames from "classnames";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilState } from "recoil";
 import { MIND_MAP_DARK_THEME, MIND_MAP_LIGHT_THEME } from "./constants";
-import { mindmapThemeAtom } from "./states/atoms";
+import {
+  mindmapThemeAtom,
+  mindMapXGapAtom,
+  mindMapYGapAtom,
+} from "./states/atoms";
+import { clamp } from "./utils";
 
 interface Props {
   className?: string;
@@ -29,12 +34,33 @@ function Card({ className, onClick, children, style }: CardProps) {
 
 function Preference({ className }: Props) {
   const [theme, setTheme] = useRecoilState(mindmapThemeAtom);
+  const [xGap, setXGap] = useRecoilState(mindMapXGapAtom);
+  const [yGap, setYGap] = useRecoilState(mindMapYGapAtom);
   const isDark = theme.background === MIND_MAP_DARK_THEME.background;
+  const cls = classNames(className, "grid grid-cols-1");
   return (
-    <div className={className}>
+    <div className={cls}>
+      <section>
+        <div className="flex items-center">
+          <label>xGap: </label>
+          <input
+            type="range"
+            value={xGap}
+            onChange={(e) => setXGap(clamp(10, Number(e.target.value), 100))}
+          />
+        </div>
+        <div className="flex items-center">
+          <label>yGap: </label>
+          <input
+            type="range"
+            value={yGap}
+            onChange={(e) => setYGap(clamp(0, Number(e.target.value), 100))}
+          />
+        </div>
+      </section>
       <section>
         <h3>Theme</h3>
-        <div className="flex gap-2 h-40">
+        <div className="flex gap-2 h-20">
           <Card
             style={MIND_MAP_DARK_THEME}
             className={classNames({
@@ -59,9 +85,9 @@ function Preference({ className }: Props) {
       </section>
       <section>
         <h3>Layout</h3>
-        <div className="flex gap-2 h-40">
-          <Card>Ltr</Card>
-          <Card>Org</Card>
+        <div className="flex gap-2 h-20">
+          <Card>Horizontal</Card>
+          <Card>Vertical</Card>
         </div>
       </section>
     </div>
