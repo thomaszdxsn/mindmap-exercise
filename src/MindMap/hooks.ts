@@ -4,7 +4,10 @@ import type { D3ZoomEvent } from "d3-zoom";
 import type { ZoomTransform } from "./interfaces";
 import { MIND_MAP_MAX_SCALE, MIND_MAP_MIN_SCALE } from "../constants";
 import { useRecoilValue } from "recoil";
-import { nodeChildrenMainAxisSpaceSelectorFamily } from "../states/selectors";
+import {
+  nodeChildrenMainAxisSpaceSelectorFamily,
+  nodeMainAxisSpaceSelectorFamily,
+} from "../states/selectors";
 import { accumalator } from "./utils";
 
 export function useZoomTransformState(

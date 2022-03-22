@@ -1,22 +1,19 @@
 import React from "react";
-import { line, linkHorizontal } from "d3";
-import { useRecoilValue } from "recoil";
+import { linkHorizontal } from "d3";
+import { useRecoilState, useRecoilValue } from "recoil";
 import {
   mindmapBgColorAtom,
   mindmapBranchWidth,
   mindMapXGapAtom,
+  nodeExpandAtomFamily,
 } from "../states/atoms";
-import {
-  rootSelector,
-  nodeChildrenMainAxisSpaceSelectorFamily,
-  nodeSelectorFamily,
-} from "../states/selectors";
+import { rootSelector, nodeSelectorFamily } from "../states/selectors";
 import { generateRandomHsl } from "../utils";
-import { accumalator, measureTextSize } from "./utils";
+import { measureTextSize } from "./utils";
 import { useNodeBranchesYPoints } from "./hooks";
 
 type Point = [number, number];
-const curveFactory = linkHorizontal();
+const makeCurve = linkHorizontal();
 
 function Branch(props: {
   color: string;
@@ -29,6 +26,7 @@ function Branch(props: {
   const childrenYPoints = useNodeBranchesYPoints(id);
   const xGap = useRecoilValue(mindMapXGapAtom);
   const branchWidth = useRecoilValue(mindmapBranchWidth);
+  const [expanded, setExpanded] = useRecoilState(nodeExpandAtomFamily(id));
   const curveDatum = {
     source: [0, 0] as Point,
     target: [xGap, y] as Point,
@@ -46,15 +44,17 @@ function Branch(props: {
   const textX = lineDatum.source[0];
   const textY = lineDatum.target[1] - textPadding;
 
-  const subBrancies = node.childIds.map((childId, index) => (
-    <Branch
-      color={color}
-      id={childId}
-      y={childrenYPoints[index]}
-      key={childId}
-      transform={`translate(${lineDatum.target[0]}, ${lineDatum.target[1]})`}
-    />
-  ));
+  const subBrancies = expanded
+    ? node.childIds.map((childId, index) => (
+        <Branch
+          color={color}
+          id={childId}
+          y={childrenYPoints[index]}
+          key={childId}
+          transform={`translate(${lineDatum.target[0]}, ${lineDatum.target[1]})`}
+        />
+      ))
+    : null;
 
   return (
     <g
@@ -62,13 +62,30 @@ function Branch(props: {
       strokeWidth={branchWidth}
       stroke={color}
       fill="transparent"
+      pointerEvents="stroke"
     >
-      <path d={curveFactory(curveDatum)?.toString()} />
-      <path d={curveFactory(lineDatum)?.toString()} />
+      <path d={makeCurve(curveDatum)?.toString()} />
+      <path d={makeCurve(lineDatum)?.toString()} />
       <text x={textX} y={textY}>
         {node.content}
       </text>
       {subBrancies}
+      <foreignObject
+        x={textX + contentWidth}
+        y={textY}
+        height={16}
+        width={16}
+        style={{
+          display: node.childIds.length > 0 ? undefined : "none",
+        }}
+      >
+        <button
+          className="w-[16px] h-[16px] border flex items-center bg-white text-black justify-center"
+          onClick={() => setExpanded((prev) => !prev)}
+        >
+          {expanded ? "-" : node.childIds.length}
+        </button>
+      </foreignObject>
     </g>
   );
 }
