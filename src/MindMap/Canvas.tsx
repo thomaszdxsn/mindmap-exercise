@@ -16,9 +16,9 @@ function Branch(props: {
   color: string;
   id: string;
   transform: string;
-  y: number;
+  origin: number;
 }) {
-  const { color, id, transform, y } = props;
+  const { color, id, transform, origin } = props;
   const node = useRecoilValue(nodeSelectorFamily(id))!;
   const childrenYPoints = useNodeBranchesYPoints(id);
   const xGap = useRecoilValue(mindMapXGapAtom);
@@ -26,8 +26,8 @@ function Branch(props: {
   const textDimension = measureTextSize(node.content);
   const [expanded, setExpanded] = useRecoilState(nodeExpandAtomFamily(id));
   const layout = React.useMemo(
-    () => new Layout(y, textDimension, xGap),
-    [xGap, y, textDimension]
+    () => new Layout(origin, textDimension, xGap),
+    [xGap, origin, textDimension]
   );
 
   const subBrancies = expanded
@@ -35,7 +35,7 @@ function Branch(props: {
         <Branch
           color={color}
           id={childId}
-          y={childrenYPoints[index]}
+          origin={childrenYPoints[index]}
           key={childId}
           transform={`translate(${layout.axisDatum.target[0]}, ${layout.axisDatum.target[1]})`}
         />
@@ -99,7 +99,7 @@ function RootNode(props: { padding?: number }) {
       <Branch
         id={childId}
         key={childId}
-        y={childrenYPoints[index]}
+        origin={childrenYPoints[index]}
         transform={`translate(${xPoint * 0.6}, 0)`}
         color={generateRandomHsl({
           hue: (index * 50) % 360,
