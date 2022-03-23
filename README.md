@@ -32,7 +32,7 @@ preview: https://mindmap-exercise.vercel.app/
 ## Future
 
 - rebrand this project(react-mmind?)
-- refactor into pnpm monospace
+- refactor into pnpm workspace
   - `@react-mmind/outliner`
   - `@react-mmind/mindmap`
 - implementation outliner
