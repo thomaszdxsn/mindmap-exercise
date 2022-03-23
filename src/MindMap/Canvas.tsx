@@ -1,5 +1,4 @@
 import React from "react";
-import { linkHorizontal } from "d3";
 import { useRecoilState, useRecoilValue } from "recoil";
 import {
   mindmapBranchWidth,
@@ -11,9 +10,7 @@ import { rootSelector, nodeSelectorFamily } from "../states/selectors";
 import { generateRandomHsl } from "../utils";
 import { measureTextSize } from "./utils";
 import { useNodeBranchesYPoints } from "./hooks";
-
-type Point = [number, number];
-const makeCurve = linkHorizontal();
+import Layout from "./layout";
 
 function Branch(props: {
   color: string;
@@ -26,23 +23,12 @@ function Branch(props: {
   const childrenYPoints = useNodeBranchesYPoints(id);
   const xGap = useRecoilValue(mindMapXGapAtom);
   const branchWidth = useRecoilValue(mindmapBranchWidth);
+  const textDimension = measureTextSize(node.content);
   const [expanded, setExpanded] = useRecoilState(nodeExpandAtomFamily(id));
-  const curveDatum = {
-    source: [0, 0] as Point,
-    target: [xGap, y] as Point,
-  };
-  const { width: contentWidth } = measureTextSize(node.content);
-  const lineDatum = {
-    source: curveDatum.target,
-    target: [
-      curveDatum.target[0] + contentWidth,
-      curveDatum.target[1],
-    ] as Point,
-  };
-
-  const textPadding = 8;
-  const textX = lineDatum.source[0];
-  const textY = lineDatum.target[1] - textPadding;
+  const layout = React.useMemo(
+    () => new Layout(y, textDimension, xGap),
+    [xGap, y, textDimension]
+  );
 
   const subBrancies = expanded
     ? node.childIds.map((childId, index) => (
@@ -51,7 +37,7 @@ function Branch(props: {
           id={childId}
           y={childrenYPoints[index]}
           key={childId}
-          transform={`translate(${lineDatum.target[0]}, ${lineDatum.target[1]})`}
+          transform={`translate(${layout.axisDatum.target[0]}, ${layout.axisDatum.target[1]})`}
         />
       ))
     : null;
@@ -64,15 +50,12 @@ function Branch(props: {
       fill="transparent"
       pointerEvents="stroke"
     >
-      <path d={makeCurve(curveDatum)?.toString()} />
-      <path d={makeCurve(lineDatum)?.toString()} />
-      <text x={textX} y={textY}>
-        {node.content}
-      </text>
+      <path d={layout.makeLinkPath()?.toString()} />
+      <path d={layout.makeAxisPath()?.toString()} />
+      <text {...layout.makeTextProps()}>{node.content}</text>
       {subBrancies}
       <foreignObject
-        x={textX + contentWidth}
-        y={textY}
+        {...layout.makeExpandBtnProps()}
         height={16}
         width={16}
         style={{

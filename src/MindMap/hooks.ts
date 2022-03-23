@@ -9,20 +9,20 @@ import { accumalator } from "./utils";
 
 export function useZoomTransformState(
   ref: React.MutableRefObject<Element>,
-  initialOriginCenter: "vertical" | "horizontal" | "both" | null = "vertical"
+  originCenter: "vertical" | "horizontal" | "both" | null = "vertical"
 ) {
   const [zoomTransform, setZoomTransform] = useState({ x: 0, y: 0, scale: 1 });
   const calcOriginCenterCoord = () => {
     const xCenter = ref.current.scrollWidth / 2;
     const yCenter = ref.current.scrollHeight / 2;
     const padding = 30;
-    switch (initialOriginCenter) {
-      case "vertical":
+    switch (originCenter) {
+      case "horizontal":
         return {
           x: padding,
           y: yCenter,
         };
-      case "horizontal":
+      case "vertical":
         return {
           x: xCenter,
           y: padding,
@@ -50,15 +50,20 @@ export function useZoomTransformState(
           scale: transform.k,
         });
       });
-  }, []);
+  }, [originCenter]);
 
   useEffect(() => {
     const selection = select(ref.current);
     selection.call(zoomed).on("dblclick.zoom", null);
-  }, []);
+  }, [zoomed]);
   useEffect(() => {
-    setZoomTransform((prev) => ({ ...prev, ...calcOriginCenterCoord() }));
-  }, []);
+    const newCenter = calcOriginCenterCoord();
+    setZoomTransform((prev) => ({ ...prev, ...newCenter }));
+    if (ref.current) {
+      const selection = select(ref.current);
+      zoomed.translateTo(selection, 0, 0, [0, 0]);
+    }
+  }, [originCenter]);
 
   // update scale should mutable zoomed's internal state, otherwise the two state would inconsistent
   const setTransform = React.useCallback(
