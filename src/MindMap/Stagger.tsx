@@ -33,7 +33,7 @@ function Scaler({ scale, setScale }: Pick<Props, "scale" | "setScale">) {
       <button type="button" className={btnClass} onClick={onScaleAdd}>
         <span>+</span>
       </button>
-      <div>{scaleDisplay}</div>
+      <div className="text-black">{scaleDisplay}</div>
     </div>
   );
 }
