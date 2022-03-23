@@ -119,7 +119,7 @@ function RootNode(props: { padding?: number }) {
         y={childrenYPoints[index]}
         transform={`translate(${xPoint * 0.6}, 0)`}
         color={generateRandomHsl({
-          hue: index * 50,
+          hue: (index * 50) % 360,
           saturation: 85,
           lightness: 70,
           alpha: 1,
