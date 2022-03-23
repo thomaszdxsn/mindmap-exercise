@@ -10,3 +10,5 @@ export interface Result<R, E> {
   data?: R;
   error?: E;
 }
+
+export type MindmapLayout = "horizontal" | "vertical";

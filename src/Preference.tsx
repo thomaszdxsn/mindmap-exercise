@@ -2,6 +2,7 @@ import classNames from "classnames";
 import { useRecoilState } from "recoil";
 import { MIND_MAP_DARK_THEME, MIND_MAP_LIGHT_THEME } from "./constants";
 import {
+  mindmapLayouAtom,
   mindmapThemeAtom,
   mindMapXGapAtom,
   mindMapYGapAtom,
@@ -34,9 +35,11 @@ function Card({ className, onClick, children, style }: CardProps) {
 
 function Preference({ className }: Props) {
   const [theme, setTheme] = useRecoilState(mindmapThemeAtom);
+  const [layout, setLayout] = useRecoilState(mindmapLayouAtom);
   const [xGap, setXGap] = useRecoilState(mindMapXGapAtom);
   const [yGap, setYGap] = useRecoilState(mindMapYGapAtom);
   const isDark = theme.background === MIND_MAP_DARK_THEME.background;
+  const isHorzontalLayout = layout === "horizontal";
   const cls = classNames(className, "grid grid-cols-1");
   return (
     <div className={cls}>
@@ -86,8 +89,24 @@ function Preference({ className }: Props) {
       <section>
         <h3>Layout</h3>
         <div className="flex gap-2 h-20">
-          <Card>Horizontal</Card>
-          <Card>Vertical</Card>
+          <Card
+            className={classNames({
+              "shadow-inner": isHorzontalLayout,
+              "!text-blue-600": isHorzontalLayout,
+            })}
+            onClick={() => setLayout("horizontal")}
+          >
+            Horizontal
+          </Card>
+          <Card
+            className={classNames({
+              "shadow-inner": !isHorzontalLayout,
+              "!text-blue-600": !isHorzontalLayout,
+            })}
+            onClick={() => setLayout("vertical")}
+          >
+            Vertical
+          </Card>
         </div>
       </section>
     </div>

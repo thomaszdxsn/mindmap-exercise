@@ -1,5 +1,6 @@
 import { atom, atomFamily } from "recoil";
 import { MIND_MAP_DARK_THEME } from "../constants";
+import { MindmapLayout } from "../interfaces";
 
 export const nodesRawContentAtom = atom({
   key: "atoms:raw-content",
@@ -43,4 +44,9 @@ export const mindmapBranchWidth = atom({
 export const mindmapThemeAtom = atom({
   key: "mind-map:theme",
   default: MIND_MAP_DARK_THEME,
+});
+
+export const mindmapLayouAtom = atom({
+  key: "mind-map:layout",
+  default: "horizontal" as MindmapLayout,
 });
