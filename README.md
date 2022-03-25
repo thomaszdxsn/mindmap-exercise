@@ -22,7 +22,7 @@ preview: https://mindmap-exercise.vercel.app/
 - [x] preference
   - [x] theme
   - [x] gap sliders
-  - [ ] layout
+  - [x] layout
 - [x] outliner
   - [x] simple textarea
   - <del>[ashleydavis/react-outliner: A React UI component for typing notes.](https://github.com/ashleydavis/react-outliner)</del>

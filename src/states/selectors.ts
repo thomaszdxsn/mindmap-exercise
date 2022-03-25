@@ -1,7 +1,10 @@
 import { selector, selectorFamily } from "recoil";
 import { MIND_MAP_BRANCH_DEFAULT_MAIN_SPACE } from "../constants";
+import { measureTextSize } from "../MindMap/utils";
 import { tryParseTextIntoNodes } from "../OutlineEditor/utils";
 import {
+  mindmapLayouAtom,
+  mindMapXGapAtom,
   mindMapYGapAtom,
   nodeExpandAtomFamily,
   nodesRawContentAtom,
@@ -44,22 +47,43 @@ export const nodeMainAxisSpaceSelectorFamily = selectorFamily({
       if (!node) {
         return 0;
       }
+      const layout = get(mindmapLayouAtom);
       const childIds = node.childIds;
-      const expanded = get(nodeExpandAtomFamily(id));
-      if (childIds.length === 0 || !expanded) {
-        return MIND_MAP_BRANCH_DEFAULT_MAIN_SPACE;
-      }
 
-      const yGap = get(mindMapYGapAtom);
-      const space = childIds
-        .map(
-          (childId) => get(nodeMainAxisSpaceSelectorFamily(childId)) as number
-        )
-        .reduce(
-          (acc, curr) => acc + curr,
-          yGap * node.childIds.length
-        ) as number;
-      return space;
+      switch (layout) {
+        case "horizontal":
+          const expanded = get(nodeExpandAtomFamily(id));
+          if (childIds.length === 0 || !expanded) {
+            return MIND_MAP_BRANCH_DEFAULT_MAIN_SPACE;
+          }
+
+          const yGap = get(mindMapYGapAtom);
+          const space = childIds
+            .map(
+              (childId) =>
+                get(nodeMainAxisSpaceSelectorFamily(childId)) as number
+            )
+            .reduce(
+              (acc, curr) => acc + curr,
+              yGap * node.childIds.length
+            ) as number;
+          return space;
+        case "vertical":
+          const xGap = get(mindMapXGapAtom);
+          const { width: selfTextWidth } = measureTextSize(node.content);
+          const childrenSumWidth = childIds
+            .map(
+              (childId) =>
+                get(nodeMainAxisSpaceSelectorFamily(childId)) as number
+            )
+            .reduce(
+              (acc, curr) => acc + curr,
+              xGap * childIds.length
+            ) as number;
+          return Math.max(selfTextWidth + xGap, childrenSumWidth);
+        default:
+          throw new Error("unsupport layout: " + layout);
+      }
     },
 });
 

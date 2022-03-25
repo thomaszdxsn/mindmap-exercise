@@ -2,8 +2,10 @@ import React from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import {
   mindmapBranchWidth,
+  mindmapLayouAtom,
   mindmapThemeAtom,
   mindMapXGapAtom,
+  mindMapYGapAtom,
   nodeExpandAtomFamily,
 } from "../states/atoms";
 import { rootSelector, nodeSelectorFamily } from "../states/selectors";
@@ -22,13 +24,18 @@ function Branch(props: {
   const node = useRecoilValue(nodeSelectorFamily(id))!;
   const childrenYPoints = useNodeBranchesYPoints(id);
   const xGap = useRecoilValue(mindMapXGapAtom);
+  const yGap = useRecoilValue(mindMapYGapAtom);
   const branchWidth = useRecoilValue(mindmapBranchWidth);
   const textDimension = measureTextSize(node.content);
   const [expanded, setExpanded] = useRecoilState(nodeExpandAtomFamily(id));
+  const layoutOption = useRecoilValue(mindmapLayouAtom);
+  const gap = layoutOption === "horizontal" ? xGap : yGap;
   const layout = React.useMemo(
-    () => new Layout(origin, textDimension, xGap),
-    [xGap, origin, textDimension]
+    () => new Layout(origin, textDimension, gap, layoutOption),
+    [gap, origin, textDimension, layoutOption]
   );
+
+  const nextTransform = `translate(${layout.axisDatum.target[0]}, ${layout.axisDatum.target[1]})`;
 
   const subBrancies = expanded
     ? node.childIds.map((childId, index) => (
@@ -37,7 +44,7 @@ function Branch(props: {
           id={childId}
           origin={childrenYPoints[index]}
           key={childId}
-          transform={`translate(${layout.axisDatum.target[0]}, ${layout.axisDatum.target[1]})`}
+          transform={nextTransform}
         />
       ))
     : null;
@@ -76,6 +83,7 @@ function Branch(props: {
 function RootNode(props: { padding?: number }) {
   const { padding = 30 } = props;
   const root = useRecoilValue(rootSelector);
+  const layoutOption = useRecoilValue(mindmapLayouAtom);
   if (!root) {
     throw new Error("root node don't exists");
   }
@@ -94,13 +102,18 @@ function RootNode(props: { padding?: number }) {
   };
 
   const branches = React.useMemo(() => {
-    const xPoint = rectX + rectWidth;
+    let pivot = 0;
+    if (layoutOption === "horizontal") {
+      pivot = rectX + rectWidth;
+    } else {
+      pivot = rectY + rectWidth;
+    }
     return root.childIds.map((childId, index) => (
       <Branch
         id={childId}
         key={childId}
         origin={childrenYPoints[index]}
-        transform={`translate(${xPoint * 0.6}, 0)`}
+        transform={`translate(${pivot * 0.5}, 0)`}
         color={generateRandomHsl({
           hue: (index * 50) % 360,
           saturation: 85,
@@ -109,7 +122,7 @@ function RootNode(props: { padding?: number }) {
         })}
       />
     ));
-  }, [childrenYPoints, rectX, rectWidth]);
+  }, [childrenYPoints, rectX, rectWidth, rectY, rectHeight, layoutOption]);
 
   return (
     <g>

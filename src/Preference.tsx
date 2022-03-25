@@ -1,6 +1,7 @@
 import classNames from "classnames";
 import { useRecoilState } from "recoil";
 import { MIND_MAP_DARK_THEME, MIND_MAP_LIGHT_THEME } from "./constants";
+import { useSwapGap } from "./MindMap/hooks";
 import {
   mindmapLayouAtom,
   mindmapThemeAtom,
@@ -41,6 +42,7 @@ function Preference({ className }: Props) {
   const isDark = theme.background === MIND_MAP_DARK_THEME.background;
   const isHorzontalLayout = layout === "horizontal";
   const cls = classNames(className, "grid grid-cols-1");
+  const swapGap = useSwapGap();
   return (
     <div className={cls}>
       <section>
@@ -94,7 +96,10 @@ function Preference({ className }: Props) {
               "shadow-inner": isHorzontalLayout,
               "!text-blue-600": isHorzontalLayout,
             })}
-            onClick={() => setLayout("horizontal")}
+            onClick={() => {
+              setLayout("horizontal");
+              swapGap();
+            }}
           >
             Horizontal
           </Card>
@@ -103,7 +108,10 @@ function Preference({ className }: Props) {
               "shadow-inner": !isHorzontalLayout,
               "!text-blue-600": !isHorzontalLayout,
             })}
-            onClick={() => setLayout("vertical")}
+            onClick={() => {
+              setLayout("vertical");
+              swapGap();
+            }}
           >
             Vertical
           </Card>

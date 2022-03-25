@@ -56,19 +56,28 @@ class VerticalLayoutStrategy implements LayoutStrategy {
   }
 
   get linkDatum(): LinkDatum {
-    return { source: [0, 1], target: [0, 1] };
+    return { source: [0, 0], target: [this.origin, this.gap] };
   }
   get axisDatum(): LinkDatum {
-    return { source: [0, 1], target: [0, 1] };
+    const linkTarget = this.linkDatum.target;
+    const { height: textHeight } = this.textDimension;
+    const x = linkTarget[0];
+    const yPadding = textHeight * 0.5;
+    const y = linkTarget[1] + textHeight + yPadding;
+    const coord = [x, y] as [number, number];
+    return { source: coord, target: coord };
   }
   get textPoint(): Point {
-    return [0, 0];
+    const linkTarget = this.linkDatum.target;
+    const { width, height } = this.textDimension;
+    return [linkTarget[0] - width / 2, linkTarget[1] + height];
   }
 }
 
 class Layout {
   private layoutStrategy: LayoutStrategy;
   private textDimension: TextDimension;
+  private layoutOption: "vertical" | "horizontal";
 
   constructor(
     origin: number,
@@ -77,6 +86,7 @@ class Layout {
     layout: MindmapLayout = "horizontal"
   ) {
     this.textDimension = textDimension;
+    this.layoutOption = layout;
     switch (layout) {
       case "horizontal":
         this.layoutStrategy = new HorizontalLayoutStrategy(
@@ -123,10 +133,19 @@ class Layout {
 
   makeExpandBtnProps() {
     const textProps = this.makeTextProps();
-    return {
-      x: textProps.x + this.textDimension.width,
-      y: textProps.y,
-    };
+    const fontSize = 16;
+    switch (this.layoutOption) {
+      case "horizontal":
+        return {
+          x: textProps.x + this.textDimension.width,
+          y: textProps.y,
+        };
+      case "vertical":
+        return {
+          x: textProps.x + this.textDimension.width / 2 - fontSize / 2,
+          y: textProps.y,
+        };
+    }
   }
 }
 

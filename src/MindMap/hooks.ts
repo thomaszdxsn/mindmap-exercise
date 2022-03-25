@@ -3,9 +3,10 @@ import React, { useEffect, useState } from "react";
 import type { D3ZoomEvent } from "d3-zoom";
 import type { ZoomTransform } from "./interfaces";
 import { MIND_MAP_MAX_SCALE, MIND_MAP_MIN_SCALE } from "../constants";
-import { useRecoilValue } from "recoil";
+import { useRecoilCallback, useRecoilValue } from "recoil";
 import { nodeChildrenMainAxisSpaceSelectorFamily } from "../states/selectors";
 import { accumalator } from "./utils";
+import { mindMapXGapAtom, mindMapYGapAtom } from "../states/atoms";
 
 export function useZoomTransformState(
   ref: React.MutableRefObject<Element>,
@@ -105,4 +106,13 @@ export function useNodeBranchesYPoints(nodeId: string) {
     return (value + (accumalatedValues[index - 1] ?? 0)) / 2;
   });
   return middleValues.map((s) => s - yMiddle);
+}
+
+export function useSwapGap() {
+  return useRecoilCallback(({ snapshot, set }) => () => {
+    const xGap = snapshot.getLoadable(mindMapXGapAtom).getValue();
+    const yGap = snapshot.getLoadable(mindMapYGapAtom).getValue();
+    set(mindMapXGapAtom, (_) => yGap);
+    set(mindMapYGapAtom, (_) => xGap);
+  });
 }
